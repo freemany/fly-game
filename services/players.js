@@ -10,14 +10,11 @@ const createPlayer = (clientId) => {
   };
   players[clientId] = newPlayer;
 
-  console.log({ newPlayer, players });
-
   return { newPlayer, players };
 };
 
 const removePlayer = (clientId) => {
   delete players[clientId];
-  console.log("remove: ", clientId);
 };
 
 module.exports = {
