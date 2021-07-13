@@ -43,6 +43,7 @@ const Game = ((global) => {
     });
 
     this.socket.on("newPlayer", (player) => {
+      console.log("newplayer", player);
       addOtherPlayers(game, player);
     });
 
@@ -78,7 +79,7 @@ const Game = ((global) => {
       game.redScoreText.setText("Red: " + scores.red);
     });
 
-    this.socket.on("starLocation", function (starLocation) {
+    this.socket.on("starLocation", (starLocation) => {
       if (game.star) game.star.destroy();
       game.star = game.physics.add.image(
         starLocation.x,
