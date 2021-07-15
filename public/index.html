@@ -2,12 +2,27 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.23.0/phaser.min.js"></script>
     <script src="js/game.js"></script>
   </head>
   <body>
+    <form id="frmGame" style="margin-bottom: 10px">
+      <input type="text" class="js-game-name" placeholder="Enter room name" />
+      <button>Start</button>
+    </form>
+    <div id="game-canvas" style="display: none"></div>
     <script>
+      const socket = Game.getIo();
+      $("#frmGame button").click(function (e) {
+        e.preventDefault();
+        const room = $("#frmGame .js-game-name").val();
+        // Connected, let's sign-up for to receive messages for this room
+        socket.emit("room", room);
+
+        $("#game-canvas").show();
+      });
       Game.init();
     </script>
   </body>

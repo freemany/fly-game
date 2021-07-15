@@ -1,8 +1,8 @@
 const Game = ((global) => {
-  const io = global.io;
+  const io = global.io();
   const config = {
     type: Phaser.AUTO,
-    parent: "phaser-example",
+    parent: "game-canvas",
     width: 800,
     height: 600,
     physics: {
@@ -26,8 +26,9 @@ const Game = ((global) => {
     this.load.image("star", "assets/star_gold.png");
   }
   function create() {
+    console.log("creating.....");
     const game = this;
-    this.socket = io();
+    this.socket = io;
     this.otherPlayers = this.physics.add.group();
 
     this.socket.on("currentPlayers", (players) => {
@@ -80,6 +81,7 @@ const Game = ((global) => {
     });
 
     this.socket.on("starLocation", (starLocation) => {
+      console.log("receive start location", starLocation);
       if (game.star) game.star.destroy();
       game.star = game.physics.add.image(
         starLocation.x,
@@ -182,6 +184,7 @@ const Game = ((global) => {
   };
 
   return {
+    getIo: () => io,
     init,
     getGame: () => myGame,
   };

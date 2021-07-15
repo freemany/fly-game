@@ -1,6 +1,18 @@
 const players = {};
 
-const createPlayer = (clientId) => {
+const filterPlayers = (players, roomPlayers) => {
+  const results = {};
+
+  for (const id in players) {
+    if (roomPlayers.includes(id)) {
+      results[id] = players[id];
+    }
+  }
+
+  return results;
+};
+
+const createPlayer = (clientId, roomPlayers) => {
   const newPlayer = {
     rotation: 0,
     x: Math.floor(Math.random() * 700) + 50,
@@ -10,7 +22,10 @@ const createPlayer = (clientId) => {
   };
   players[clientId] = newPlayer;
 
-  return { newPlayer, players };
+  return {
+    newPlayer,
+    players: filterPlayers(players, roomPlayers),
+  };
 };
 
 const removePlayer = (clientId) => {
