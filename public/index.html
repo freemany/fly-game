@@ -6,15 +6,65 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.23.0/phaser.min.js"></script>
     <script src="js/game.js"></script>
+    <style>
+      .container {
+        display: flex;
+        justify-content: space-between;
+      }
+      #room-list {
+        list-style: none;
+      }
+    </style>
   </head>
   <body>
-    <form id="frmGame" style="margin-bottom: 10px">
+    <div class="container">
+      <div id="game-canvas" style="display: none"></div>
+      <ul id="room-list"></ul>
+      <div class="js-room-message"></div>
+    </div>
+    <!-- <form id="frmGame" style="margin-bottom: 10px">
       <input type="text" class="js-game-name" placeholder="Enter room name" />
       <button>Start</button>
-    </form>
-    <div id="game-canvas" style="display: none"></div>
+    </form> -->
     <script>
+      function joinRoom(room, socket) {
+        socket.emit("room", room);
+        $("#game-canvas").show();
+      }
+
       const socket = Game.getIo();
+      socket.on("joined", (message) => {
+        $("#room-list").hide();
+        $(".js-room-message").text(message);
+      });
+      socket.on("all", (data) => {
+        console.log(data);
+        $("#room-list").html("");
+        for (const room in data) {
+          const $li = $("<li>");
+          $li.attr("id", "room_" + room);
+          const $btn = $("<button>").appendTo($li);
+          $btn.text(room);
+          const $p = $("<p>");
+          const playerCount = data[room].length;
+          $p.text(
+            !playerCount
+              ? "Available"
+              : playerCount == 2
+              ? "Full"
+              : "1 Player waiting..."
+          );
+          $p.appendTo($li);
+          if (playerCount === 2) {
+            $btn.attr("disabled", true);
+          }
+          $btn.click(() => joinRoom(room, socket));
+
+          $li.appendTo($("#room-list"));
+        }
+      });
+    </script>
+    <script>
       $("#frmGame button").click(function (e) {
         e.preventDefault();
         const room = $("#frmGame .js-game-name").val();

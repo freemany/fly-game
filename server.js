@@ -3,7 +3,13 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const playersService = require("./services/players");
-const roomPlayerMap = {};
+const roomPlayerMap = {
+  kungfu: [],
+  karate: [],
+  boxing: [],
+  mma: [],
+  judo: [],
+};
 const playerRoomMap = {};
 
 const star = {
@@ -16,19 +22,19 @@ const scores = {
 };
 
 io.on("connection", (client) => {
+  io.emit("all", roomPlayerMap);
   console.log("a user connected " + client.id);
-
   client.on("room", (room) => {
     console.log(client.id + " has joined room " + room);
     myRoom = room;
     client.join(room);
+    client.emit("joined", "You are in Room " + room);
 
     if (roomPlayerMap[room]) {
       roomPlayerMap[room].push(client.id);
-    } else {
-      roomPlayerMap[room] = [client.id];
     }
     playerRoomMap[client.id] = room;
+    io.emit("all", roomPlayerMap);
 
     console.log("all rooms", io.sockets.adapter.rooms);
 
@@ -46,9 +52,16 @@ io.on("connection", (client) => {
 
     client.on("disconnect", () => {
       console.log("user disconnected:", client.id);
+      const room = playerRoomMap[client.id];
       playersService.removePlayer(client.id);
-      // io.emit("disconnectPlayer", client.id);
-      io.in(playerRoomMap[client.id]).emit("disconnectPlayer", client.id);
+      delete playerRoomMap[client.id];
+
+      io.in(room).emit("disconnectPlayer", client.id);
+
+      roomPlayerMap[room] = roomPlayerMap[room].filter(
+        (clientId) => clientId !== client.id
+      );
+      io.emit("all", roomPlayerMap);
     });
 
     // when a player moves, update the player data
